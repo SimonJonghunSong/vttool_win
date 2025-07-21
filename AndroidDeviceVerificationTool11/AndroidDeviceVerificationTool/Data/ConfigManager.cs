@@ -237,8 +237,8 @@ namespace AndroidDeviceVerificationTool.Data
                 },
                 MQTT = new MqttConfig
                 {
-                    BrokerAddress = "",//127.0.0.1
-                    Port = 0, //1883
+                    BrokerAddress = "127.0.0.1",
+                    Port = 1883, 
                     Username = "",
                     Password = "",
                     ConnectionTimeoutSeconds = 5,

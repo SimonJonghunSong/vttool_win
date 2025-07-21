@@ -1022,19 +1022,19 @@ namespace AndroidDeviceVerificationTool.Data
                 
                 if (connected)
                 {
-                    Console.WriteLine("🌐 실제 MQTT 모드로 전환 완료!");
+                    Console.WriteLine("MQTT 연결 완료");
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("❌ 실제 MQTT 연결 실패 - 시뮬레이션 모드로 복원");
+                    Console.WriteLine("MQTT 연결 실패");
                     // SimulationMode = true;  // 주석 처리
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ MQTT 모드 전환 오류: {ex.Message}");
+                Console.WriteLine($"MQTT 모드 전환: {ex.Message}");
                 // SimulationMode = true;  // 주석 처리
                 return false;
             }
