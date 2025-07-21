@@ -1,0 +1,88 @@
+{
+  "model": "ST9730",
+  "fw_version": "1.0",
+  "identifier": "345145",
+  "target_install_file": "C:/tmp/ST9730/VTApp.apk",
+  "privapp_permission_file": "C:/tmp/ST9730/privapp-permissions-com.example.vtandapp.xml",
+  "peri_test": {
+    "wifi_ssid": "5G_LGWiFi_EA56",
+    "ble_name": "DKS_7355",
+    "ble_mac": "E3:E5:E1:A6:73:55",
+    "auto_test_items": [
+      "mcu_peri",
+      "ap_gyro",
+      "ap_gps",
+      "ap_ble",
+      "ap_wifi",
+      "sw_ver",
+      "mcu_peri",
+      "ap_gyro",
+      "ap_gps",
+      "ap_ble",
+      "ap_wifi",
+      "sw_ver",
+      "mcu_peri",
+      "ap_gyro",
+      "ap_gps",
+      "ap_ble",
+      "ap_wifi",
+      "sw_ver",
+      "mcu_peri",
+      "ap_gyro",
+      "ap_gps",
+      "ap_ble",
+      "ap_wifi",
+      "sw_ver"
+    ],
+    "manual_test_items": [
+      "mcu_sos",
+      "mcu_led",
+      "ap_led",
+      "ap_spk",
+      "ap_mic",
+      "ap_fcam",
+      "ap_rcam",
+      "ap_sdcard",
+      "ap_imei",
+      "ap_apn"
+    ],
+    "mcu_peri_uart": {
+      "dev": "/dev/ttyMSM1",
+      "baudrate": 115200
+    }
+  },
+  "imei_write": {
+    "ap_imei_val": {
+      "imei": "aaaaaa",
+      "sn": "bbbbb"
+    }
+  },
+  "post_setup": {
+    "ap_apn_val": {
+      "apn_name": "new_apn_111",
+      "apn_id": "new_id_111",
+      "apn_pass": "new_pass_111"
+    }
+  },
+  "database": {
+    "access_info": {
+      "db_ip": "10.10.10.1",
+      "db_port": 3333,
+      "db_access_id": "new_test_user",
+      "db_acccess_pass": "testpass",
+      "db_table_01_name": "vtapp_result",
+      "db_table_02_name": "vtapp_detail_value"
+    },
+    "ref_data": {
+      "location": "office",
+      "process_name": "HongGilDong",
+      "buyer": "ST_USA",
+      "model_name": "ST9730",
+      "production_date": "20250604123412",
+      "lora_id": "n/a",
+      "sigfox_id": "n/a",
+      "pac_id": "n/a",
+      "iccid": "n/a"
+    }
+  }
+}

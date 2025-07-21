@@ -1,0 +1,33 @@
+{
+  "Environment": {
+    "Mode": "Development",
+    "StrictMode": false,
+    "AllowMockFallback": true
+  },
+  "MQTT": {
+    "BrokerAddress": "192.168.0.3",
+    "Port": 1883,
+    "Username": "",
+    "Password": "",
+    "ConnectionTimeoutSeconds": 5,
+    "EnableSSL": false
+  },
+  "ADB": {
+    "MonitoringEnabled": true,
+    "MonitoringIntervalSeconds": 2,
+    "CommandTimeoutSeconds": 10,
+    "AutoPortForwarding": true
+  },
+  "UI": {
+    "ShowModeToggleButton": true,
+    "AutoRefreshInterval": 1000,
+    "LogMaxLines": 1000,
+    "Theme": "Dark"
+  },
+  "Logging": {
+    "Level": "Info",
+    "EnableFileLogging": false,
+    "LogFilePath": "logs/app.log",
+    "MaxLogFileSize": 10485760
+  }
+} 
