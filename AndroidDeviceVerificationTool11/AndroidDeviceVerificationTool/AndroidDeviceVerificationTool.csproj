@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +29,12 @@
   <ItemGroup>
     <PackageReference Include="M2Mqtt" Version="4.3.0" />
     <PackageReference Include="MySql.Data" Version="9.3.0" />
+  </ItemGroup>
+
+  <!-- Windows Forms 호환성을 위한 설정 -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="System.Windows.Forms" />
+    <TrimmerRootAssembly Include="System.Drawing.Common" />
   </ItemGroup>
 
 </Project>
