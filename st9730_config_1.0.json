@@ -3,7 +3,7 @@
   "fw_version": "1.0",
   "identifier": "345145",
   "target_install_file": "C:\\work\\202505_VTapp\\01.sw_dev\\windows\\VTApp.apk",
-  "privapp_permission_file": "C:/tmp/ST9730/privapp-permissions-com.example.vtandapp.xml",
+  "privapp_permission_file": "C:\\temp\\ST9730\\privapp-permissions-com.example.vtandapp.xml",
   "peri_test": {
     "wifi_ssid": "5G_LGWiFi_EA56",
     "ble_name": "DKS_7355",

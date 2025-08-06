@@ -17,7 +17,7 @@ namespace AndroidDeviceVerificationTool;
 public partial class Form1 : Form
 {
     private PeripheralTestControl peripheralTestControl;
-    private ImeiSnWriteControl micInWriteControl;
+    private ImeiSnWriteControl imeiSnWriteControl;
     private PostSetupControl portSetupControl;
     
     // 🌐 통합 데이터 관리자 (모든 컨트롤이 공유)
@@ -600,10 +600,10 @@ public partial class Form1 : Form
                         while (true)
                         {
                             Console.WriteLine($"[Loop] Sending dev_join_req to {deviceId}...");
-                            toggle_flag = !toggle_flag;
-                            string pubT = "";
-                            if (toggle_flag == true) pubT = deviceId;
-                            else pubT = null;
+                            // toggle_flag = !toggle_flag;
+                            // string pubT = "";
+                            // if (toggle_flag == true) pubT = deviceId;
+                            // else pubT = null;
 
                             //Console.WriteLine($"===================pubT:{pubT}, toggle_flag:{toggle_flag}");
                             //if(pubT == null)
@@ -614,7 +614,7 @@ public partial class Form1 : Form
                             //string pubT = null;
 
                             //await Task.Delay(5000);
-                            res = await unifiedMqtt.send_to_device(slotIndex, pubT, "dev_join_req", param_data);
+                            res = await unifiedMqtt.send_to_device(slotIndex, deviceId, "dev_join_req", param_data);
 
                             if (res != null)
                             {
@@ -727,17 +727,17 @@ public partial class Form1 : Form
         {
             // UserControl 인스턴스 생성 (통합 데이터 시스템 사용)
             peripheralTestControl = new PeripheralTestControl();
-            micInWriteControl = new ImeiSnWriteControl();
+            imeiSnWriteControl = new ImeiSnWriteControl();
             portSetupControl = new PostSetupControl();
 
             // Dock 설정을 먼저 하고 패널에 추가 (렌더링 최적화)
             peripheralTestControl.Dock = DockStyle.Fill;
-            micInWriteControl.Dock = DockStyle.Fill;
+            imeiSnWriteControl.Dock = DockStyle.Fill;
             portSetupControl.Dock = DockStyle.Fill;
 
             // 커스텀 탭 패널에 추가
             peripheralTestPanel.Controls.Add(peripheralTestControl);
-            micInWritePanel.Controls.Add(micInWriteControl);
+            micInWritePanel.Controls.Add(imeiSnWriteControl);
             postSetupPanel.Controls.Add(portSetupControl);
 
             // 🔍 **임시 테스트용 라벨 추가**
@@ -765,7 +765,7 @@ public partial class Form1 : Form
 
             // 🔍 **디버그: 컨트롤 생성 및 추가 확인**
             sharedData.AddDeviceLog(0, $"✅ PeripheralTestControl 생성됨: {peripheralTestControl != null}", "DEBUG");
-            sharedData.AddDeviceLog(0, $"✅ MicInWriteControl 생성됨: {micInWriteControl != null}", "DEBUG");  
+            sharedData.AddDeviceLog(0, $"✅ MicInWriteControl 생성됨: {imeiSnWriteControl != null}", "DEBUG");  
             sharedData.AddDeviceLog(0, $"✅ PostSetupControl 생성됨: {portSetupControl != null}", "DEBUG");
             sharedData.AddDeviceLog(0, $"✅ Panel 1 컨트롤 수: {peripheralTestPanel.Controls.Count}", "DEBUG");
             sharedData.AddDeviceLog(0, $"✅ Panel 2 컨트롤 수: {micInWritePanel.Controls.Count}", "DEBUG");
@@ -853,7 +853,7 @@ public partial class Form1 : Form
             
             try
             {
-                micInWriteControl?.RefreshUI();
+                imeiSnWriteControl?.RefreshUI();
                 sharedData?.AddDeviceLog(0, "✅ MicInWriteControl RefreshUI 완료", "DEBUG");
             }
             catch (Exception ex)
@@ -896,7 +896,7 @@ public partial class Form1 : Form
         sharedData.ModelNameChanged += OnModelNameChanged;
 
         // 2번 탭 (MicInWriteControl) 이벤트 구독
-        micInWriteControl.WriteButtonClicked += OnMicInWriteButtonClicked;
+        imeiSnWriteControl.WriteButtonClicked += OnImeiSnWriteButtonClicked;
 
         // 3번 탭 (PostSetupControl) 이벤트 구독
         portSetupControl.WriteButtonClicked += OnPostSetupWriteButtonClicked;
@@ -1010,7 +1010,7 @@ public partial class Form1 : Form
     }
 
     // 🎯 2번 탭 Write 버튼 클릭 이벤트 핸들러
-    private void OnMicInWriteButtonClicked(UnifiedDeviceData device)
+    private void OnImeiSnWriteButtonClicked(UnifiedDeviceData device)
     {
         try
         {
@@ -1018,7 +1018,7 @@ public partial class Form1 : Form
             sharedData.AddDeviceLog(deviceIndex, $"📝 Form1: MicInWrite Write 버튼 클릭됨 - Device #{deviceIndex} ({device.Name})", "INFO");
             
             // 실제 IMEI/SN 쓰기 로직을 여기에 구현
-            ProcessMicInWrite(device);
+            ProcessImeiSnWrite(device);
         }
         catch (Exception ex)
         {
@@ -1064,7 +1064,7 @@ public partial class Form1 : Form
     }
 
     // 🎯 실제 MicInWrite 처리 로직
-    private void ProcessMicInWrite(UnifiedDeviceData device)
+    private void ProcessImeiSnWrite(UnifiedDeviceData device)
     {
         // IMEI/SN 쓰기 실제 구현
         var micInData = device.IMEI_SN_Data;
@@ -1075,6 +1075,8 @@ public partial class Form1 : Form
         
         // 여기에 실제 디바이스에 IMEI/SN을 쓰는 로직 구현
         // 예: ADB 명령어 실행, FastBoot 명령어 등
+
+
         
         sharedData.AddDeviceLog(deviceIndex, $"✅ MicInWrite 완료: Device #{deviceIndex}", "SUCCESS");
     }
