@@ -1010,7 +1010,7 @@ public partial class Form1 : Form
     }
 
     // 🎯 2번 탭 Write 버튼 클릭 이벤트 핸들러
-    private void OnImeiSnWriteButtonClicked(UnifiedDeviceData device)
+    private async void OnImeiSnWriteButtonClicked(UnifiedDeviceData device)
     {
         try
         {
@@ -1064,21 +1064,84 @@ public partial class Form1 : Form
     }
 
     // 🎯 실제 MicInWrite 처리 로직
-    private void ProcessImeiSnWrite(UnifiedDeviceData device)
+    private async void ProcessImeiSnWrite(UnifiedDeviceData device)
     {
         // IMEI/SN 쓰기 실제 구현
-        var micInData = device.IMEI_SN_Data;
+        var imeiSnData = device.IMEI_SN_Data;
         int deviceIndex = sharedData.GetIndexOfDevice(device);
         
-        sharedData.AddDeviceLog(deviceIndex, $"📝 IMEI 쓰기 시작: {micInData.IMEI}", "INFO");
-        sharedData.AddDeviceLog(deviceIndex, $"📝 Serial Number 쓰기 시작: {micInData.SerialNumber}", "INFO");
+        // IMEI 길이 검증 (15자리여야 함)
+        if (string.IsNullOrEmpty(imeiSnData.IMEI) || imeiSnData.IMEI.Length <= 14)
+        {
+            sharedData.AddDeviceLog(deviceIndex, $"IMEI Length Error: {imeiSnData.IMEI?.Length ?? 0}. (Should be 15 digits)", "ERROR");
+            return;
+        }
         
-        // 여기에 실제 디바이스에 IMEI/SN을 쓰는 로직 구현
-        // 예: ADB 명령어 실행, FastBoot 명령어 등
-
-
+        // sharedData.AddDeviceLog(deviceIndex, $"📝 IMEI 쓰기 시작: {imeiSnData.IMEI}", "INFO");
+        // sharedData.AddDeviceLog(deviceIndex, $"📝 Serial Number 쓰기 시작: {imeiSnData.SerialNumber}", "INFO");
         
-        sharedData.AddDeviceLog(deviceIndex, $"✅ MicInWrite 완료: Device #{deviceIndex}", "SUCCESS");
+        try
+        {
+            // MQTT 메시지 전송을 위한 파라미터 구성
+            var input_param = new Dictionary<string, object>
+            {
+                ["imei"] = imeiSnData.IMEI,
+                ["sn"] = imeiSnData.SerialNumber
+            };
+            
+            var param_data = new Dictionary<string, object>
+            {
+                ["test_item"] = "manual_ap_imei",
+                ["input_param"] = input_param
+            };
+            
+            // 해당 디바이스의 pubTopic으로 MQTT 메시지 전송
+            var response = await unifiedMqtt.send_to_device(deviceIndex, null, "do_test_req", param_data);
+
+            if(response == null || !response.Res.Contains("do_test_res"))
+            {
+                sharedData.AddDeviceLog(deviceIndex, $"⚠️ MQTT Res parsing failed: {response}", "WARNING");
+                return;
+            }
+
+            // MQTT 응답 파싱 및 결과 확인
+            try
+            {
+                var dj = new DynamicJson(response.Params.ToString());
+
+                if (!dj.IsValid)
+                {
+                    sharedData.AddDeviceLog(deviceIndex, $"⚠️ MQTT Res parsing failed: {response.Params}", "WARNING");
+                    return;
+                }
+
+                // result 필드 확인 
+                var resultValue = response.Result;
+                if (!resultValue)
+                {
+                    sharedData.AddDeviceLog(deviceIndex, $"IMEI/SN Write Failed", "ERROR");
+                    return;
+                }
+
+                sharedData.AddDeviceLog(deviceIndex, $"IMEI/SN Write OK", "SUCCESS");
+                Console.WriteLine($"IMEI/SN Write OK result: {resultValue}");
+
+                var writtenImei = dj.GetString("result.written_imei");
+                var writtenSn = dj.GetString("result.written_sn");
+                
+                sharedData.AddDeviceLog(deviceIndex, $"Written IMEI: {writtenImei}", "INFO");
+                sharedData.AddDeviceLog(deviceIndex, $"Written SN: {writtenSn}", "INFO");
+            }
+            catch (Exception parseEx)
+            {
+                sharedData.AddDeviceLog(deviceIndex, $"❌ MQTT Resp parsing error: {parseEx.Message}", "ERROR");
+            }
+        
+        }
+        catch (Exception ex)
+        {
+            sharedData.AddDeviceLog(deviceIndex, $"❌ IMEI/SN Write MQTT Send ERR: {ex.Message}", "ERROR");
+        }        
     }
 
     // 🎯 실제 PostSetup Write 처리 로직
