@@ -1424,8 +1424,18 @@ namespace AndroidDeviceVerificationTool.Data
                             param_data["test_item"] = "auto_ap_ble";
                             break;
                         case "ap_wifi":
-                            Console.WriteLine($"ExecuteTestAsync: [{deviceIndex}], auto_ap_wifi, ");
-                            param_data["test_item"] = "auto_ap_wifi";
+                            { 
+                                Console.WriteLine($"ExecuteTestAsync: [{deviceIndex}], auto_ap_wifi, ");
+                                var wifiSsid = Config.Instance.GetNested("peri_test.wifi_ssid") as string;
+                                Console.WriteLine($"wifi_ssid: {wifiSsid}");
+
+                                var input_param = new Dictionary<string, object>
+                                {
+                                    ["ssid"] = wifiSsid != null ? wifiSsid : "null"
+                                };
+                                param_data["test_item"] = "auto_ap_wifi";
+                                param_data["input_param"] = input_param;
+                            }                           
                             break;
                         case "sw_ver":
                             Console.WriteLine($"ExecuteTestAsync: [{deviceIndex}], auto_sw_ver, ");
@@ -1466,18 +1476,20 @@ namespace AndroidDeviceVerificationTool.Data
                             param_data["test_item"] = "manual_ap_sdcard";
                             break;
                         case "ap_imei":
-                            Console.WriteLine($"ExecuteTestAsync: manual_ap_imei ");
-                            var imei = Config.Instance.GetNested("imei_write.ap_imei_val.imei") as string;
-                            var sn = Config.Instance.GetNested("imei_write.ap_imei_val.sn") as string;
-                            Console.WriteLine($"imei:{imei}, sn:{sn}");
-
-                            var input_param = new Dictionary<string, object>
                             {
-                                ["imei"] = imei != null ? imei : "null",
-                                ["sn"] = sn != null ? sn : "null"
-                            };
-                            param_data["test_item"] = "manual_ap_imei";
-                            param_data["input_param"] = input_param;
+                                Console.WriteLine($"ExecuteTestAsync: manual_ap_imei ");
+                                var imei = Config.Instance.GetNested("imei_write.ap_imei_val.imei") as string;
+                                var sn = Config.Instance.GetNested("imei_write.ap_imei_val.sn") as string;
+                                Console.WriteLine($"imei:{imei}, sn:{sn}");
+
+                                var input_param = new Dictionary<string, object>
+                                {
+                                    ["imei"] = imei != null ? imei : "null",
+                                    ["sn"] = sn != null ? sn : "null"
+                                };
+                                param_data["test_item"] = "manual_ap_imei";
+                                param_data["input_param"] = input_param;
+                            }
                             break;
                         case "ap_apn":
                             Console.WriteLine($"ExecuteTestAsync: manual_ap_apn ");
