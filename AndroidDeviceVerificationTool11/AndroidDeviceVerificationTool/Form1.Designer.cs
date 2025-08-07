@@ -72,9 +72,11 @@ partial class Form1
         this.titlePanel.Size = new Size(1600, 40);
         this.titlePanel.BackColor = Color.FromArgb(243, 113, 33);
         this.titlePanel.Controls.Add(this.titleLabel);
+#if false        
         this.titlePanel.Controls.Add(this.testConnectionButton);
         this.titlePanel.Controls.Add(this.testAdbCmdButton); 
         this.titlePanel.Controls.Add(this.testDbButton); 
+#endif
         this.titlePanel.Controls.Add(this.modelNameTextBox);
         this.titlePanel.Controls.Add(this.minimizeButton);
         //this.titlePanel.Controls.Add(this.maximizeButton);
