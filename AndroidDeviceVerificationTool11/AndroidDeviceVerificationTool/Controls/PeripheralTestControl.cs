@@ -1000,6 +1000,10 @@ namespace AndroidDeviceVerificationTool.Controls
                                         Console.WriteLine("======= params:" + test.Params);
                                         Console.WriteLine("======= result:" + testResult.Result);
                                         Console.WriteLine("======= Description:" + testResult.Description);
+
+                                        sharedData.AddDeviceLog(device.Index, $"{test.Name}:{test.Params}", "INFO");
+                                         
+
                                         // 결과에 따라 PASS/FAIL 자동 판정
                                         string result = testResult.Result ? "PASS" : "FAIL";
                                          

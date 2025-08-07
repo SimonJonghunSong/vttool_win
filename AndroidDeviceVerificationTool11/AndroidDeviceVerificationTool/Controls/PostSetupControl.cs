@@ -844,8 +844,9 @@ namespace AndroidDeviceVerificationTool.Controls
                         {
                             if (footerChild is RichTextBox logTextBox)
                             {
-                                // 🎯 APN Write 완료 상태로 업데이트
-                                string successMessage = "APN write success ✅";
+                                // 🎯 manual_ap_apn 테스트 실행 완료 상태로 업데이트
+                                string timestamp = DateTime.Now.ToString("HH:mm:ss");
+                                string successMessage = $"✅ manual_ap_apn 테스트 완료: {timestamp}";
                                 
                                 logTextBox.Clear();
                                 logTextBox.SelectionColor = Color.FromArgb(0x00, 0xFF, 0xA6); // 초록색

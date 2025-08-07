@@ -1034,7 +1034,7 @@ namespace AndroidDeviceVerificationTool.Controls
                     
                     // 📊 디버그: API 사용 결과 로그
                     sharedData.AddDeviceLog(panelIndex, 
-                        $"🎯 새로운 카운팅 API 사용 결과: Auto(Pass={testCounts.AutoPassCount}, Fail={testCounts.AutoFailCount}), Manual(Pass={testCounts.ManualPassCount}, Fail={testCounts.ManualFailCount})", "INFO");
+                        $"AutoTest (Pass={testCounts.AutoPassCount}, Fail={testCounts.AutoFailCount}), Manual(Pass={testCounts.ManualPassCount}, Fail={testCounts.ManualFailCount})", "INFO");
                 }
             }
         }
@@ -1044,8 +1044,8 @@ namespace AndroidDeviceVerificationTool.Controls
             // 📊 새로운 카운팅 API 사용으로 간소화
             var testCounts = sharedData.GetAllTestCounts(device.Index);
             
-            sharedData.AddDeviceLog(device.Index, 
-                $"📊 API를 통한 카운트 조회: Auto(Pass={testCounts.AutoPassCount}, Fail={testCounts.AutoFailCount}), Manual(Pass={testCounts.ManualPassCount}, Fail={testCounts.ManualFailCount})", "DEBUG");
+            // sharedData.AddDeviceLog(device.Index, 
+            //     $"📊 API를 통한 카운트 조회: Auto(Pass={testCounts.AutoPassCount}, Fail={testCounts.AutoFailCount}), Manual(Pass={testCounts.ManualPassCount}, Fail={testCounts.ManualFailCount})", "DEBUG");
 
             // Auto Test 카운트 업데이트
             UpdateTestCountLabels(devicePanel, false, testCounts.AutoPassCount, testCounts.AutoFailCount);

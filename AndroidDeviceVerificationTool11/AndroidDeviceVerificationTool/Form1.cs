@@ -1145,16 +1145,83 @@ public partial class Form1 : Form
     }
 
     // 🎯 실제 PostSetup Write 처리 로직
-    private void ProcessPostSetupWrite(UnifiedDeviceData device)
+    private async void ProcessPostSetupWrite(UnifiedDeviceData device)
     {
         // APN 설정 쓰기 실제 구현
         int deviceIndex = sharedData.GetIndexOfDevice(device);
-        sharedData.AddDeviceLog(deviceIndex, $"📮 APN 설정 쓰기 시작", "INFO");
+        sharedData.AddDeviceLog(deviceIndex, $"📮 PostSetup Write 시작: Device #{deviceIndex} ({device.Name})", "INFO");
         
-        // 여기에 실제 디바이스에 APN 설정을 쓰는 로직 구현
-        // 예: ADB 명령어로 설정 변경, API 호출 등
-        
-        sharedData.AddDeviceLog(deviceIndex, $"✅ PostSetup Write 완료: Device #{deviceIndex}", "SUCCESS");
+        try
+        {
+            // APN 정보 가져오기
+            var apnData = sharedData.GetApnData(deviceIndex);
+            string apnName = apnData.apn;
+            string userId = apnData.userId;
+            string password = apnData.password;
+            
+            sharedData.AddDeviceLog(deviceIndex, $"📮 APN 정보: Name={apnName}, UserId={userId}, Password={password}", "INFO");
+            
+            // MQTT 메시지 전송을 위한 파라미터 구성
+            var input_param = new Dictionary<string, object>
+            {
+                ["apn_name"] = !string.IsNullOrEmpty(apnName) ? apnName : "null",
+                ["apn_id"] = !string.IsNullOrEmpty(userId) ? userId : "null",
+                ["apn_pass"] = !string.IsNullOrEmpty(password) ? password : "null"
+            };
+            
+            var param_data = new Dictionary<string, object>
+            {
+                ["test_item"] = "manual_ap_apn",
+                ["input_param"] = input_param
+            };
+            
+            // 해당 디바이스의 pubTopic으로 MQTT 메시지 전송
+            var response = await unifiedMqtt.send_to_device(deviceIndex, null, "do_test_req", param_data);
+
+            if(response == null || !response.Res.Contains("do_test_res"))
+            {
+                sharedData.AddDeviceLog(deviceIndex, $"⚠️ MQTT Res parsing failed: {response}", "WARNING");
+                return;
+            }
+
+            // MQTT 응답 파싱 및 결과 확인
+            try
+            {
+                var dj = new DynamicJson(response.Params.ToString());
+
+                if (!dj.IsValid)
+                {
+                    sharedData.AddDeviceLog(deviceIndex, $"⚠️ MQTT Res parsing failed: {response.Params}", "WARNING");
+                    return;
+                }
+
+                // result 필드 확인 
+                var resultValue = response.Result;
+                if (!resultValue)
+                {
+                    sharedData.AddDeviceLog(deviceIndex, $"❌ PostSetup Write Failed", "ERROR");
+                    return;
+                }
+
+                sharedData.AddDeviceLog(deviceIndex, $"✅ PostSetup Write OK", "SUCCESS");
+                Console.WriteLine($"PostSetup Write OK result: {resultValue}");
+
+                // 성공 시 디바이스의 APN 정보 업데이트
+                device.ApnInfo.APN = apnName;
+                device.ApnInfo.UserID = userId;
+                device.ApnInfo.Password = password;
+                
+                sharedData.AddDeviceLog(deviceIndex, $"✅ PostSetup Write 완료: APN 설정이 성공적으로 적용되었습니다", "SUCCESS");
+            }
+            catch (Exception ex)
+            {
+                sharedData.AddDeviceLog(deviceIndex, $"❌ PostSetup Write 응답 파싱 오류: {ex.Message}", "ERROR");
+            }
+        }
+        catch (Exception ex)
+        {
+            sharedData.AddDeviceLog(deviceIndex, $"❌ PostSetup Write 처리 중 오류: {ex.Message}", "ERROR");
+        }
     }
 
     // 🎯 실제 Save Result 처리 로직
@@ -2021,7 +2088,7 @@ public partial class Form1 : Form
                 if (btnPattern4 != null) { this.titlePanel.Controls.Remove(btnPattern4); btnPattern4.Dispose(); btnPattern4 = null; }
                 if (btnTestAll != null) { this.titlePanel.Controls.Remove(btnTestAll); btnTestAll.Dispose(); btnTestAll = null; }
                 
-                sharedData?.AddDeviceLog(0, "🏭 Production Mode: Communication 버튼들이 제거되었습니다", "INFO");
+                // sharedData?.AddDeviceLog(0, "🏭 Production Mode: Communication 버튼들이 제거되었습니다", "INFO");
             }
             catch (Exception ex)
             {
