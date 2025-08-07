@@ -1420,8 +1420,29 @@ namespace AndroidDeviceVerificationTool.Data
                             param_data["test_item"] = "auto_ap_gps";
                             break;
                         case "ap_ble":
-                            Console.WriteLine($"ExecuteTestAsync: [{deviceIndex}], auto_ap_ble, ");
-                            param_data["test_item"] = "auto_ap_ble";
+                            {
+                                Console.WriteLine($"ExecuteTestAsync: [{deviceIndex}], auto_ap_ble, ");
+                                var bleName = Config.Instance.GetNested("peri_test.ble_name") as string;
+                                var bleMac = Config.Instance.GetNested("peri_test.ble_mac") as string;
+                                Console.WriteLine($"ble_name: {bleName}, ble_mac: {bleMac}");
+
+                                var input_param = new Dictionary<string, object>();
+                                
+                                // Add name parameter if it exists
+                                if (!string.IsNullOrEmpty(bleName))
+                                {
+                                    input_param["name"] = bleName;
+                                }
+                                
+                                // Add ble_mac parameter if it exists
+                                if (!string.IsNullOrEmpty(bleMac))
+                                {
+                                    input_param["mac"] = bleMac;
+                                }
+                                
+                                param_data["test_item"] = "auto_ap_ble";
+                                param_data["input_param"] = input_param;
+                            }
                             break;
                         case "ap_wifi":
                             { 
