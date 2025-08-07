@@ -965,7 +965,8 @@ namespace AndroidDeviceVerificationTool.Controls
 
 
 
-                       
+#if true
+                        //순차적으로 실행하는 방식
                         if (device != null && device.PeripheralData.AutoTests.Count > 0)
                         {
                                         // 🚀 모든 테스트를 **병렬로** 실행 (각 테스트가 독립적)
@@ -978,8 +979,6 @@ namespace AndroidDeviceVerificationTool.Controls
 
                                 int testIndex = i; // 클로저를 위한 지역 변수
 
-                                                // 🚀 각 테스트를 개별 Task로 병렬 실행
-                                 //var testTask = Task.Run(async () =>
                                  {
                                      try
                                      {
@@ -998,9 +997,9 @@ namespace AndroidDeviceVerificationTool.Controls
                                         // 🎯 테스트 완료 후 추가 딜레이 (결과 확인용)
                                         await Task.Delay(500);
 
-                                        Console.WriteLine("===========================1111=============== params:" + test.Params);
-                                        Console.WriteLine("===========================2222=============== result:" + testResult.Result);
-                                        Console.WriteLine("===========================3333=============== Description:" + testResult.Description);
+                                        Console.WriteLine("======= params:" + test.Params);
+                                        Console.WriteLine("======= result:" + testResult.Result);
+                                        Console.WriteLine("======= Description:" + testResult.Description);
                                         // 결과에 따라 PASS/FAIL 자동 판정
                                         string result = testResult.Result ? "PASS" : "FAIL";
                                          
@@ -1021,12 +1020,6 @@ namespace AndroidDeviceVerificationTool.Controls
                                          this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, "ERROR")));
                                      }
                                  }
-                                 //);
-                                 
-                                 //testTasks.Add(testTask);
-                                 
-                                 // 🎯 테스트 시작 간격을 1초로 늘림 (시각적 확인 가능)
-                                 //await Task.Delay(1000);
                             }
                             
                             // 🚀 모든 테스트 완료 대기 (병렬 실행)
@@ -1035,73 +1028,70 @@ namespace AndroidDeviceVerificationTool.Controls
                             // 🎯 완료 로그
                             sharedData.AddDeviceLog(deviceIndex, $"✅ Auto Test 완료", "SUCCESS");
                         }
-                        /*
-                        else
+#else
+                        // 순차적으로 테스트 실행 (FAIL 시 중단)
+                        if (device != null && device.PeripheralData.AutoTests.Count > 0)
                         {
-                            // 🎯 임시 디바이스 추가 처리
-                            if (device == null)
+                            for (int i = 0; i < device.PeripheralData.AutoTests.Count; i++)
                             {
-                                sharedData.AddDevice($"VD #{deviceIndex + 1:D2}");
-                                device = sharedData.GetDeviceByIndex(deviceIndex);
-                            }
-                            
-                            // 임시 디바이스의 테스트도 병렬 실행
-                            if (device != null && device.PeripheralData.AutoTests.Count > 0)
-                            {
-                                var testTasks = new List<Task>();
-                                
-                                for (int i = 0; i < device.PeripheralData.AutoTests.Count; i++)
+                                var test = device.PeripheralData.AutoTests[i];
+                                Console.WriteLine($"AutoTest{i}: {test.Index}, {test.Name},{test.Status} ");
+
+                                int testIndex = i; // 클로저를 위한 지역 변수
+
+                                try
                                 {
-                                    var test = device.PeripheralData.AutoTests[i];
-                                    Console.WriteLine($"AutoTest{i}: {test.Index}, {test.Name},{test.Status} ");
+                                    // 🎯 RUNNING 상태로 업데이트 (SharedData API 사용)
+                                    sharedData.UpdateAutoTestStatus(deviceIndex, testIndex, "RUNNING");
+                                    this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, "RUNNING")));
                                     
-                                    int testIndex = i; // 클로저를 위한 지역 변수
+                                    await Task.Delay(500);
                                     
-                                     var testTask = Task.Run(async () =>
-                                     {
-                                         try
-                                         {
-                                             // 🎯 RUNNING 상태로 업데이트 (SharedData API 사용)
-                                             sharedData.UpdateAutoTestStatus(deviceIndex, testIndex, "RUNNING");
-                                             this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, "RUNNING")));
-                                             
-                                             // 🎯 테스트 실행 시각화를 위한 딜레이 (1초)
-                                             await Task.Delay(1000);
-                                             
-                                             // 🧪 실제 테스트 함수 실행
-                                             FunctionTestResult testResult = await test.ExecuteTestAsync(unifiedMqtt, deviceIndex, test.Name);
-                                             
-                                             // 🎯 테스트 완료 후 추가 딜레이 (결과 확인용)
-                                             await Task.Delay(500);
-                                             
-                                             // 결과에 따라 PASS/FAIL 자동 판정
-                                             string result = testResult.Result ? "PASS" : "FAIL";
-                                             
-                                             // 📊 SharedData API를 통한 상태 업데이트 (이벤트 발생)
-                                             sharedData.UpdateAutoTestStatus(deviceIndex, testIndex, result);
-                                             
-                                             // 🎯 테스트 완료 로그만 유지
-                                             sharedData.AddDeviceLog(device.Index, $"✅ Auto Test: {test.Name} → {result}", "INFO");
-                                             
-                                             // 🎯 결과 상태로 UI 업데이트
-                                             this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, result)));
-                                         }
-                                         catch (Exception ex)
-                                         {
-                                             sharedData.UpdateAutoTestStatus(deviceIndex, testIndex, "ERROR");
-                                             sharedData.AddDeviceLog(device.Index, $"❌ Auto Test 오류: {test.Name} → {ex.Message}", "ERROR");
-                                             this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, "ERROR")));
-                                         }
-                                     });
-                                     
-                                     testTasks.Add(testTask);
-                                     await Task.Delay(1000); // 시작 간격을 1초로 늘림
+                                    // 🧪 실제 테스트 함수 실행
+                                    FunctionTestResult testResult = await test.ExecuteTestAsync(unifiedMqtt, deviceIndex, test.Name);
+                                    Console.WriteLine("✅ Received result: " + testResult.Result);
+
+                                    await Task.Delay(500);
+
+                                    Console.WriteLine("======= params:" + test.Params);
+                                    Console.WriteLine("======= result:" + testResult.Result);
+                                    Console.WriteLine("======= Description:" + testResult.Description);
+                                    
+                                    // 결과에 따라 PASS/FAIL 자동 판정
+                                    string result = testResult.Result ? "PASS" : "FAIL";
+                                    
+                                    // 📊 SharedData API를 통한 상태 업데이트 (이벤트 발생)
+                                    sharedData.UpdateAutoTestStatus(deviceIndex, testIndex, result);
+                                    
+                                    // 🎯 테스트 완료 로그만 유지 (중요한 결과)
+                                    sharedData.AddDeviceLog(device.Index, $"✅ Auto Test: {test.Name} → {result}", "INFO");
+                                    
+                                    // 🎯 결과 상태로 UI 업데이트 (UI 스레드에서)
+                                    this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, result)));
+                                    
+                                    // 🚫 FAIL이면 루프 중단
+                                    if (result == "FAIL")
+                                    {
+                                        sharedData.AddDeviceLog(device.Index, $"❌ Auto Test 중단: {test.Name} 실패", "ERROR");
+                                        break; // 루프 종료
+                                    }
                                 }
-                                
-                                await Task.WhenAll(testTasks);
-                            }
+                                catch (Exception ex)
+                                {
+                                    // 오류 발생 시 ERROR 상태로 설정 (SharedData API 사용)
+                                    sharedData.UpdateAutoTestStatus(deviceIndex, testIndex, "ERROR");
+                                    sharedData.AddDeviceLog(device.Index, $"❌ Auto Test 오류: {test.Name} → {ex.Message}", "ERROR");
+                                    this.Invoke(new Action(() => UpdateAutoTestStatus(deviceIndex, testIndex, "ERROR")));
+                                    
+                                    // 🚫 오류 발생 시에도 루프 중단
+                                    break; // 루프 종료
+                                }
+                            }                            
+                            // 🎯 완료 로그
+                            sharedData.AddDeviceLog(deviceIndex, $"✅ Auto Test 완료", "SUCCESS");
                         }
-                        */
+
+#endif
                     }
                     catch (Exception ex)
                     {
@@ -1511,11 +1501,11 @@ namespace AndroidDeviceVerificationTool.Controls
                                                     // 사용자가 선택한 결과 적용
                                     string result = dialog.TestResult ? "PASS" : "FAIL";
 
-                                                     // ✅ 결과 상태로 변경 (SharedData API를 통한 업데이트와 이벤트 발생)
-                                    sharedData.UpdateManualTestStatus(deviceIndex, testIndex, result, result);
+                                                                                 // ✅ 결과 상태로 변경 (SharedData API를 통한 업데이트와 이벤트 발생)
+                            sharedData.UpdateManualTestStatus(deviceIndex, testIndex, result, result);
 
-                                                     // 🎯 사용자 선택 결과만 간단히 로그
-                                    sharedData.AddDeviceLog(device.Index, $"✅ Manual Test: {test.Name} → {result}", "INFO");
+                            // 🎯 사용자 선택 결과만 간단히 로그
+                            sharedData.AddDeviceLog(device.Index, $"✅ Manual Test: {test.Name} → {result}", "INFO");
 
                                                      // 버튼 직접 업데이트 (UI 전체 새로고침 없이)
                                     this.Invoke(new Action(() => UpdateButtonState(button, device.PeripheralData.ManualTests[testIndex])));
