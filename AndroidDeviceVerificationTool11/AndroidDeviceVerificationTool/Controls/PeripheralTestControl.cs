@@ -1642,6 +1642,7 @@ namespace AndroidDeviceVerificationTool.Controls
                 BorderStyle = BorderStyle.FixedSingle // 로그창 구분을 위한 테두리
             };
 
+            
             // 🔧 Save Result 버튼 (20% 높이 증가, Auto Test 스타일 폰트)
             var actionButton = new Button
             {
@@ -1654,18 +1655,25 @@ namespace AndroidDeviceVerificationTool.Controls
                 FlatStyle = FlatStyle.Flat,
                 TabStop = false, // 포커스 이동 방지
                 Tag = new { DeviceIndex = deviceIndex },
+                Visible = false, // 안보이도록 처리함. 
             };
+            
             actionButton.FlatAppearance.BorderSize = 0;
             actionButton.FlatAppearance.BorderColor = Color.FromArgb(0xF3, 0x71, 0x21);
             
             actionButton.Region = CreateRoundedRegion(new Rectangle(0, 0, DEVICE_WIDTH - 35, 42), 8);
             actionButton.Click += SaveButton_Click;
 
-            // 로그창 - AutoTest 방식 Panel (Section + ScrollContainer) - 40픽셀 줄여서 하단 여백 확보
+            // 로그창 - AutoTest 방식 Panel (Section + ScrollContainer) - Save Result 버튼 공간 활용
             var logPanel = new Panel
             {
-                Location = new Point(15, 62),
-                Size = new Size(DEVICE_WIDTH - 30, 160), // 200 → 160으로 40픽셀 줄임
+                //상단 버튼 있을때 값
+                // Location = new Point(15, 62),
+                // Size = new Size(DEVICE_WIDTH - 30, 160), // 200 → 160으로 40픽셀 줄임                
+
+                //버튼 없앤 후 값
+                Location = new Point(15, 10), // 62 → 10으로 변경 (Save Result 버튼 공간 활용)
+                Size = new Size(DEVICE_WIDTH - 30, 212), // 160 → 212로 증가 (42픽셀 버튼 높이 + 10픽셀 여백)
                 BackColor = Color.FromArgb(0x57, 0x57, 0x65),
                 BorderStyle = BorderStyle.None,
                 Name = $"LogPanel_{deviceIndex}"
