@@ -962,7 +962,7 @@ namespace AndroidDeviceVerificationTool.Controls
             {
                 Location = new Point(15, 10),
                 Size = new Size(DEVICE_WIDTH - 35, 42), // 35 → 42 (20% 증가)
-                Text = "Save Result",
+                Text = "Save Result and Factory Reset",
                 Font = new Font("Noto Sans KR", 12F, FontStyle.Bold), // Auto Test 스타일로 변경
                 ForeColor = Color.FromArgb(0x18, 0x18, 0x1D), // #18181D
                 BackColor = Color.FromArgb(0xF3, 0x71, 0x21), // #F37121 (주황색)
